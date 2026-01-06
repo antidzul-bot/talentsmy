@@ -1,0 +1,3 @@
+name = "talentsmy"
+pages_build_output_dir = "./dist"
+compatability_date = "2024-04-01"
