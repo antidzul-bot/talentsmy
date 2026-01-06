@@ -6,6 +6,7 @@ import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { Toast } from '../components/Toast';
 import { sendOTP, verifyOTPBackend } from '../utils/emailService';
+import { logActivity, logFailedLogin } from '../utils/activityLogger';
 import { User } from '../types';
 import styles from './Login.module.css';
 
@@ -93,7 +94,7 @@ export const Login: React.FC = () => {
                     user = { id: 'admin-1', name: 'Agency Owner', email, role: 'OWNER' };
                 } else if (emailLower === 'doc@kerabat.digital') {
                     user = { id: 'staff-doc', name: 'Kerabat Digital', email, role: 'STAFF' };
-                } else if (emailLower === 'miera@talents.my') {
+                } else if (emailLower === 'najwaamira0813@gmail.com') {
                     // Fetch supplier details from store if possible, or just mock it for session start
                     // Ideally we find the supplier in the store to get their ID
                     const supplier = useStore.getState().suppliers.find(s => s.email.toLowerCase() === emailLower);
@@ -125,6 +126,13 @@ export const Login: React.FC = () => {
                 // Persist session
                 localStorage.setItem('currentUser', JSON.stringify(user));
 
+                // Log successful login
+                await logActivity({
+                    action_type: 'LOGIN',
+                    action_description: `User logged in as ${user.role}`,
+                    metadata: { role: user.role }
+                });
+
                 setToast({ message: 'Login successful!', type: 'success' });
 
                 // Navigate based on role
@@ -136,6 +144,8 @@ export const Login: React.FC = () => {
                     }
                 }, 500);
             } else {
+                // Log failed OTP verification
+                await logFailedLogin(email, result.error || 'Invalid or expired OTP');
                 setToast({ message: result.error || 'Invalid or expired OTP', type: 'error' });
             }
         } catch (err) {

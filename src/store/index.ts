@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
+import { logActivity } from '../utils/activityLogger';
 import { Order, Supplier, DashboardStats, OrderProgress, CampaignPackage, User, AuthOTP } from '../types';
 
 interface AppState {
@@ -179,6 +180,16 @@ export const useStore = create<AppState>((set, get) => ({
 
         // Optimistic update
         set((state) => ({ orders: [...state.orders, newOrder] }));
+
+        // Log activity
+        await logActivity({
+            action_type: 'ORDER_CREATE',
+            action_description: `Created order for ${newOrder.clientName}`,
+            related_entity_type: 'ORDER',
+            related_entity_id: id,
+            metadata: { trackingCode, clientName: newOrder.clientName }
+        });
+
         return trackingCode;
     },
 
@@ -203,6 +214,15 @@ export const useStore = create<AppState>((set, get) => ({
             data: updatedOrder,
             updated_at: new Date().toISOString()
         }).eq('id', id);
+
+        // Log activity
+        await logActivity({
+            action_type: 'ORDER_UPDATE',
+            action_description: `Updated order ${updatedOrder.trackingCode}`,
+            related_entity_type: 'ORDER',
+            related_entity_id: id,
+            metadata: { updates: Object.keys(updates) }
+        });
     },
 
     updateOrderProgress: async (id, progress) => {
@@ -222,6 +242,14 @@ export const useStore = create<AppState>((set, get) => ({
     deleteOrder: async (id) => {
         set((state) => ({ orders: state.orders.filter((o) => o.id !== id) }));
         await supabase.from('orders').delete().eq('id', id);
+
+        // Log activity
+        await logActivity({
+            action_type: 'ORDER_DELETE',
+            action_description: `Deleted order`,
+            related_entity_type: 'ORDER',
+            related_entity_id: id
+        });
     },
 
     getOrderByTrackingCode: (code) => {
@@ -312,6 +340,13 @@ export const useStore = create<AppState>((set, get) => ({
 
     logout: () => {
         localStorage.removeItem('currentUser');
+
+        // Log logout (before clearing user)
+        logActivity({
+            action_type: 'LOGOUT',
+            action_description: 'User logged out'
+        }).catch(console.error);
+
         set({ currentUser: null });
     },
 

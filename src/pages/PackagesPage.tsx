@@ -35,7 +35,7 @@ export const PackagesPage: React.FC = () => {
                                 <li>✓ Content Guidelines</li>
                                 <li>✓ Payout Management</li>
                             </ul>
-                            <a href="mailto:hello@talents.my?subject=Starter Package Inquiry" className={styles.btnOutline}>
+                            <a href="https://wa.me/60135229966?text=Hi%2C%20I'm%20interested%20in%20the%20Starter%20Package" className={styles.btnOutline} target="_blank" rel="noopener noreferrer">
                                 Get Started
                             </a>
                         </div>
@@ -59,7 +59,7 @@ export const PackagesPage: React.FC = () => {
                                 <li>✓ Priority Support</li>
                                 <li>✓ Comprehensive Report</li>
                             </ul>
-                            <a href="mailto:hello@talents.my?subject=Growth Package Inquiry" className={styles.btnPrimary}>
+                            <a href="https://wa.me/60135229966?text=Hi%2C%20I'm%20interested%20in%20the%20Growth%20Package" className={styles.btnPrimary} target="_blank" rel="noopener noreferrer">
                                 Get Started
                             </a>
                         </div>
@@ -80,7 +80,7 @@ export const PackagesPage: React.FC = () => {
                                 <li>✓ Extended Duration</li>
                                 <li>✓ White-label Reporting</li>
                             </ul>
-                            <a href="mailto:hello@talents.my?subject=Custom Package Inquiry" className={styles.btnOutline}>
+                            <a href="https://wa.me/60135229966?text=Hi%2C%20I'm%20interested%20in%20a%20Custom%20Enterprise%20Package" className={styles.btnOutline} target="_blank" rel="noopener noreferrer">
                                 Contact Us
                             </a>
                         </div>

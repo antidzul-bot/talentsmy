@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store';
 import { Button } from '../components/Button';
+import { Input } from '../components/Input';
 import { Card } from '../components/Card';
 import { Order } from '../types';
 import styles from './AdminDashboard.module.css';
@@ -9,10 +10,63 @@ import styles from './AdminDashboard.module.css';
 export const AdminDashboard: React.FC = () => {
     const navigate = useNavigate();
     const orders = useStore((state) => state.orders);
+    const suppliers = useStore((state) => state.suppliers);
     const stats = useStore((state) => state.getDashboardStats());
     const updateOrder = useStore((state) => state.updateOrder);
     const logout = useStore((state) => state.logout);
     const currentUser = useStore((state) => state.currentUser);
+
+    // Search and filter state
+    const [searchQuery, setSearchQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState<string>('all');
+    const [supplierFilter, setSupplierFilter] = useState<string>('all');
+    const [currentPage, setCurrentPage] = useState(1);
+    const ordersPerPage = 10;
+
+    // Filtered and searched orders
+    const filteredOrders = useMemo(() => {
+        let result = [...orders];
+
+        // Search filter
+        if (searchQuery) {
+            const query = searchQuery.toLowerCase();
+            result = result.filter(order =>
+                order.trackingCode.toLowerCase().includes(query) ||
+                order.clientName.toLowerCase().includes(query) ||
+                order.productName.toLowerCase().includes(query)
+            );
+        }
+
+        // Status filter
+        if (statusFilter !== 'all') {
+            if (statusFilter === 'pending_payment') {
+                result = result.filter(order => !order.progress.clientPaid);
+            } else if (statusFilter === 'in_progress') {
+                result = result.filter(order => order.progress.clientPaid && order.status !== 'COMPLETED');
+            } else if (statusFilter === 'completed') {
+                result = result.filter(order => order.status === 'COMPLETED');
+            }
+        }
+
+        // Supplier filter
+        if (supplierFilter !== 'all') {
+            result = result.filter(order => order.supplierId === supplierFilter);
+        }
+
+        return result;
+    }, [orders, searchQuery, statusFilter, supplierFilter]);
+
+    // Pagination
+    const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
+    const paginatedOrders = filteredOrders.slice(
+        (currentPage - 1) * ordersPerPage,
+        currentPage * ordersPerPage
+    );
+
+    // Reset to page 1 when filters change
+    React.useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, statusFilter, supplierFilter]);
 
     // Auto-approval logic for payment verification
     React.useEffect(() => {
@@ -170,7 +224,7 @@ export const AdminDashboard: React.FC = () => {
 
                 {/* Orders Section */}
                 <div className={styles['section-header']}>
-                    <h2 className={styles['section-title']}>Recent Orders</h2>
+                    <h2 className={styles['section-title']}>Orders ({filteredOrders.length})</h2>
                     <div style={{ display: 'flex', gap: '10px' }}>
                         <Button variant="secondary" onClick={() => navigate('/admin/suppliers')}>
                             👥 Suppliers
@@ -184,18 +238,73 @@ export const AdminDashboard: React.FC = () => {
                     </div>
                 </div>
 
+                {/* Search and Filters */}
+                <div style={{
+                    display: 'flex',
+                    gap: '12px',
+                    marginBottom: '20px',
+                    flexWrap: 'wrap',
+                    alignItems: 'center'
+                }}>
+                    <div style={{ flex: '1 1 300px' }}>
+                        <Input
+                            type="text"
+                            placeholder="Search by tracking code, client, or product..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        style={{
+                            padding: '10px 12px',
+                            borderRadius: '8px',
+                            border: '1px solid var(--color-border)',
+                            background: 'var(--color-bg-secondary)',
+                            color: 'var(--color-text-primary)',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        <option value="all">All Status</option>
+                        <option value="pending_payment">Pending Payment</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                    <select
+                        value={supplierFilter}
+                        onChange={(e) => setSupplierFilter(e.target.value)}
+                        style={{
+                            padding: '10px 12px',
+                            borderRadius: '8px',
+                            border: '1px solid var(--color-border)',
+                            background: 'var(--color-bg-secondary)',
+                            color: 'var(--color-text-primary)',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        <option value="all">All Suppliers</option>
+                        {suppliers.map(supplier => (
+                            <option key={supplier.id} value={supplier.id}>
+                                {supplier.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
                 <div className={styles['orders-grid']}>
-                    {orders.length === 0 ? (
+                    {filteredOrders.length === 0 ? (
                         <Card>
                             <div className={styles['empty-state']}>
-                                <div className={styles['empty-icon']}>📦</div>
-                                <h3>No Orders Yet</h3>
-                                <p>Create your first order to get started</p>
-                                <Button style={{ marginTop: '1rem' }}>Create Order</Button>
+                                <div className={styles['empty-icon']}>🔍</div>
+                                <h3>No Orders Found</h3>
+                                <p>{searchQuery || statusFilter !== 'all' || supplierFilter !== 'all'
+                                    ? 'Try adjusting your search or filters'
+                                    : 'Create your first order to get started'}</p>
                             </div>
                         </Card>
                     ) : (
-                        orders.map((order) => (
+                        paginatedOrders.map((order) => (
                             <div
                                 key={order.id}
                                 className={styles['order-card']}
@@ -275,6 +384,38 @@ export const AdminDashboard: React.FC = () => {
                         ))
                     )}
                 </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        gap: '12px',
+                        marginTop: '24px',
+                        padding: '16px'
+                    }}>
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                        >
+                            ← Previous
+                        </Button>
+                        <span style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                        >
+                            Next →
+                        </Button>
+                    </div>
+                )}
             </div>
         </div >
     );

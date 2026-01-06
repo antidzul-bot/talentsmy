@@ -22,9 +22,9 @@ export const HomePage: React.FC = () => {
                             Professional affiliate campaign management that delivers real results.
                         </p>
                         <div className={styles.heroActions}>
-                            <Link to="/packages" className={styles.btnPrimary}>
-                                View Packages
-                            </Link>
+                            <a href="https://wa.me/60135229966?text=Hi%2C%20I'm%20interested%20in%20your%20TikTok%20affiliate%20packages" className={styles.btnPrimary} target="_blank" rel="noopener noreferrer">
+                                Get Started
+                            </a>
                             <Link to="/track" className={styles.btnSecondary}>
                                 Track Your Order
                             </Link>
@@ -98,9 +98,9 @@ export const HomePage: React.FC = () => {
                             Join hundreds of brands already growing with TikTok affiliate marketing
                         </p>
                         <div className={styles.ctaActions}>
-                            <Link to="/contact" className={styles.btnPrimary}>
+                            <a href="https://wa.me/60135229966?text=Hi%2C%20I%20want%20to%20start%20a%20TikTok%20affiliate%20campaign" className={styles.btnPrimary} target="_blank" rel="noopener noreferrer">
                                 Start Your Campaign
-                            </Link>
+                            </a>
                             <a href="https://wa.me/60135229966" className={styles.btnSecondary} target="_blank" rel="noopener noreferrer">
                                 Chat on WhatsApp
                             </a>
