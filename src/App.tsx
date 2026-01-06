@@ -14,6 +14,7 @@ import { SupplierDashboard } from './pages/SupplierDashboard';
 import { SupplierOrderDetail } from './pages/SupplierOrderDetail';
 import { SupplierSettings } from './pages/SupplierSettings';
 import { AdminSuppliers } from './pages/AdminSuppliers';
+import { ActivityLogs } from './pages/ActivityLogs';
 import { Login } from './pages/Login';
 import { AuthGuard } from './components/AuthGuard';
 import { useStore } from './store';
@@ -77,6 +78,11 @@ const App = () => {
                 <Route path="/admin/orders/:id/edit" element={
                     <AuthGuard allowedRoles={['OWNER', 'STAFF']}>
                         <NewOrder />
+                    </AuthGuard>
+                } />
+                <Route path="/admin/activity-logs" element={
+                    <AuthGuard allowedRoles={['OWNER']}>
+                        <ActivityLogs />
                     </AuthGuard>
                 } />
 

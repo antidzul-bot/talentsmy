@@ -1,0 +1,155 @@
+.page {
+    min-height: 100vh;
+    background: var(--color-bg-primary);
+}
+
+.header {
+    background: var(--color-bg-secondary);
+    border-bottom: 1px solid var(--color-border);
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 0 0 0.5rem 0;
+}
+
+.subtitle {
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.statCard {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.statValue {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+}
+
+.statLabel {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.logsTable {
+    overflow-x: auto;
+}
+
+.logsTable table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.logsTable thead {
+    background: var(--color-bg-tertiary);
+    border-bottom: 2px solid var(--color-border);
+}
+
+.logsTable th {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.logsTable tbody tr {
+    border-bottom: 1px solid var(--color-border-light);
+    transition: background-color 0.2s;
+}
+
+.logsTable tbody tr:hover {
+    background: var(--color-bg-tertiary);
+}
+
+.logsTable td {
+    padding: 12px 16px;
+    font-size: 0.875rem;
+    color: var(--color-text-primary);
+}
+
+.timestamp {
+    color: var(--color-text-secondary);
+    font-family: monospace;
+    white-space: nowrap;
+}
+
+.email {
+    font-weight: 500;
+}
+
+.roleBadge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.roleBadge[data-role="OWNER"] {
+    background: var(--color-error-bg);
+    color: var(--color-error);
+}
+
+.roleBadge[data-role="STAFF"] {
+    background: var(--color-info-bg);
+    color: var(--color-info);
+}
+
+.roleBadge[data-role="SUPPLIER"] {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+}
+
+.actionBadge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: monospace;
+    background: var(--color-bg-tertiary);
+}
+
+.description {
+    color: var(--color-text-secondary);
+    max-width: 400px;
+}
+
+@media (max-width: 768px) {
+    .logsTable {
+        font-size: 0.75rem;
+    }
+
+    .logsTable th,
+    .logsTable td {
+        padding: 8px 12px;
+    }
+
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

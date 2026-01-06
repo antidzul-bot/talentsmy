@@ -132,6 +132,11 @@ export const AdminDashboard: React.FC = () => {
                             <p className={styles['dashboard-subtitle']}>Welcome back, {currentUser?.name || 'Admin'}</p>
                         </div>
                         <div style={{ display: 'flex', gap: '10px' }}>
+                            {currentUser?.role === 'OWNER' && (
+                                <Button variant="secondary" onClick={() => navigate('/admin/activity-logs')}>
+                                    📊 Activity Logs
+                                </Button>
+                            )}
                             <Button variant="secondary" onClick={() => logout()}>Logout</Button>
                         </div>
                     </div>
