@@ -1,16 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../store';
 import { Card, CardHeader, CardTitle, CardBody } from '../components/Card';
 import { Button } from '../components/Button';
 import { Toast } from '../components/Toast';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { supabase } from '../lib/supabase';
+import { Order } from '../types';
 import styles from './OrderDetail.module.css';
 
 export const OrderDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const orders = useStore((state) => state.orders);
+    const isLoadingStore = useStore((state) => state.isLoading);
     const suppliers = useStore((state) => state.suppliers);
     const updateOrder = useStore((state) => state.updateOrder);
     const updateOrderProgress = useStore((state) => state.updateOrderProgress);
@@ -19,7 +22,52 @@ export const OrderDetail: React.FC = () => {
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-    const order = orders.find((o) => o.id === id);
+    // Local state for fallback fetching
+    const [localOrder, setLocalOrder] = useState<Order | null>(null);
+    const [localLoading, setLocalLoading] = useState(false);
+
+    const order = orders.find((o) => o.id === id) || localOrder;
+    const isLoading = isLoadingStore || localLoading;
+
+    // Fallback fetch if store doesn't have it (e.g. direct link)
+    useEffect(() => {
+        if (!order && !isLoadingStore && id) {
+            const fetchDirect = async () => {
+                setLocalLoading(true);
+                try {
+                    const { data, error } = await supabase
+                        .from('orders')
+                        .select('*')
+                        .eq('id', id)
+                        .maybeSingle();
+
+                    if (data) {
+                        // Handle legacy JSON column structure vs new flat structure if applicable
+                        // Currently store assumes 'data' column holds the object.
+                        // But if we migrated to flat columns, simpler.
+                        // We'll stick to store's assumption: d.data
+                        const orderData = data.data || data;
+                        setLocalOrder(orderData as Order);
+                    }
+                } catch (e) {
+                    console.error(e);
+                } finally {
+                    setLocalLoading(false);
+                }
+            };
+            fetchDirect();
+        }
+    }, [id, order, isLoadingStore]);
+
+    if (isLoading) {
+        return (
+            <div className={styles['order-detail-page']}>
+                <div className="container" style={{ display: 'flex', justifyContent: 'center', paddingTop: '100px' }}>
+                    <h3>Loading Order Details...</h3>
+                </div>
+            </div>
+        );
+    }
 
     if (!order) {
         return (
@@ -28,7 +76,7 @@ export const OrderDetail: React.FC = () => {
                     <Card>
                         <CardBody>
                             <h2>Order Not Found</h2>
-                            <p>The order you're looking for doesn't exist.</p>
+                            <p>The order you're looking for doesn't exist or you don't have permission to view it.</p>
                             <Button onClick={() => navigate('/admin')}>Back to Dashboard</Button>
                         </CardBody>
                     </Card>
