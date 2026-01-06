@@ -87,8 +87,9 @@ export const OrderDetail: React.FC = () => {
 
     const supplier = suppliers.find(s => s.id === order.supplierId);
 
-    const formatCurrency = (amount: number) => `RM${amount.toLocaleString()}`;
-
+    const formatCurrency = (amount: number | undefined | null) => {
+        return `RM${(amount || 0).toLocaleString()}`;
+    };
     const formatDate = (dateString?: string) => {
         if (!dateString) return 'Not set';
         return new Date(dateString).toLocaleDateString('en-MY', {
