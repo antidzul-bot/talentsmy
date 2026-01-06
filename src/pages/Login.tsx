@@ -87,13 +87,37 @@ export const Login: React.FC = () => {
                 // Determine user role based on email
                 let user: User;
 
-                if (email.toLowerCase() === 'antidzul@gmail.com') {
+                const emailLower = email.toLowerCase();
+
+                if (emailLower === 'antidzul@gmail.com') {
                     user = { id: 'admin-1', name: 'Agency Owner', email, role: 'OWNER' };
-                } else if (email.toLowerCase().includes('admin')) {
-                    // Keep 'admin' for now as a backup, but ideally remove this line once tested
-                    user = { id: 'admin-backup', name: 'Admin', email, role: 'OWNER' };
+                } else if (emailLower === 'doc@kerabat.digital') {
+                    user = { id: 'staff-doc', name: 'Kerabat Digital', email, role: 'STAFF' };
+                } else if (emailLower === 'miera@talents.my') {
+                    // Fetch supplier details from store if possible, or just mock it for session start
+                    // Ideally we find the supplier in the store to get their ID
+                    const supplier = useStore.getState().suppliers.find(s => s.email.toLowerCase() === emailLower);
+                    user = {
+                        id: supplier?.id || 'miera-legacy',
+                        name: supplier?.name || 'MIERA LEGACY',
+                        email,
+                        role: 'SUPPLIER',
+                        supplierId: supplier?.id || 'miera-id'
+                    };
                 } else {
-                    user = { id: 'staff-' + Date.now(), name: 'Agency Staff', email, role: 'STAFF' };
+                    // Check if they match any OTHER supplier
+                    const supplier = useStore.getState().suppliers.find(s => s.email.toLowerCase() === emailLower);
+                    if (supplier) {
+                        user = { id: supplier.id, name: supplier.name, email, role: 'SUPPLIER', supplierId: supplier.id };
+                    } else {
+                        // REJECT unknown logins or treat as guest? 
+                        // For now, let's Fail if strict mode is requested, or default to generic Staff if you prefer.
+                        // User requested "no one can get otp except above".
+                        // Logic for rejection should be at OTP sending stage, but here we can also block login.
+                        setToast({ message: 'Access Denied: Email not recognized.', type: 'error' });
+                        setIsLoading(false);
+                        return;
+                    }
                 }
 
                 // Set user in store
