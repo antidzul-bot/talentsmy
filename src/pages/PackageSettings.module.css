@@ -1,0 +1,157 @@
+.settings-page {
+    min-height: 100vh;
+    background: var(--color-bg-secondary);
+    padding-bottom: var(--space-2xl);
+}
+
+.page-header {
+    background: white;
+    border-bottom: 1px solid var(--color-border-light);
+    padding: var(--space-xl) 0;
+    margin-bottom: var(--space-2xl);
+}
+
+.page-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-xs);
+}
+
+.page-subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-tertiary);
+}
+
+.packages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: var(--space-xl);
+}
+
+.package-card-header {
+    padding: var(--space-lg);
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.pkg-name {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin-bottom: 4px;
+}
+
+.pkg-stats {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.status-active {
+    font-size: 10px;
+    background: var(--color-success-bg);
+    color: var(--color-success);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-inactive {
+    font-size: 10px;
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-tertiary);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.pkg-pricing {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: var(--space-lg);
+}
+
+.pricing-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.pricing-label {
+    font-size: 11px;
+    color: var(--color-text-tertiary);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.pricing-old {
+    font-size: 13px;
+    color: var(--color-text-tertiary);
+    text-decoration: line-through;
+}
+
+.pricing-current {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--color-primary);
+}
+
+.pricing-cost {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+}
+
+.pricing-profit {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--color-success);
+}
+
+.pkg-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-border-light);
+}
+
+.package-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-lg);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.form-group label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+}
+
+.select-input {
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background: white;
+    font-size: 14px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-md);
+    margin-top: var(--space-xl);
+}

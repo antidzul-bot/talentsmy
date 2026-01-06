@@ -1,0 +1,101 @@
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: 0.625rem var(--space-lg);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+    user-select: none;
+}
+
+.button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.button:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+}
+
+/* Variants */
+.button-primary {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+.button-primary:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+}
+
+.button-secondary {
+    background: white;
+    color: var(--color-text-primary);
+    border-color: var(--color-border);
+}
+
+.button-secondary:hover:not(:disabled) {
+    background: var(--color-bg-secondary);
+    border-color: var(--color-text-tertiary);
+}
+
+.button-ghost {
+    background: transparent;
+    color: var(--color-text-secondary);
+    border-color: transparent;
+}
+
+.button-ghost:hover:not(:disabled) {
+    background: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+}
+
+.button-success {
+    background: var(--color-success);
+    color: white;
+    border-color: var(--color-success);
+}
+
+.button-success:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+    border-color: var(--color-accent-hover);
+}
+
+.button-block {
+    width: 100%;
+}
+
+.button-danger {
+    background: var(--color-error);
+    color: white;
+    border-color: var(--color-error);
+}
+
+.button-danger:hover:not(:disabled) {
+    opacity: 0.9;
+}
+
+/* Sizes */
+.button-sm {
+    padding: 0.5rem var(--space-md);
+    font-size: var(--font-size-xs);
+}
+
+.button-lg {
+    padding: 0.75rem var(--space-xl);
+    font-size: var(--font-size-base);
+}
+
+.button-icon {
+    padding: 0.625rem;
+    aspect-ratio: 1;
+}

@@ -1,0 +1,78 @@
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg-secondary);
+    padding: var(--space-lg);
+}
+
+.login-container {
+    width: 100%;
+    max-width: 400px;
+}
+
+.logo-section {
+    text-align: center;
+    margin-bottom: var(--space-2xl);
+}
+
+.logo-section h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 5px;
+}
+
+.logo-section p {
+    color: var(--color-text-secondary);
+    font-size: 14px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.login-hint {
+    font-size: 13px;
+    color: var(--color-text-tertiary);
+    line-height: 1.5;
+}
+
+.demo-otp-box {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: center;
+    border: 1px dashed var(--color-success);
+}
+
+.demo-otp-box code {
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: var(--color-text-tertiary);
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: color 0.2s;
+}
+
+.back-btn:hover {
+    color: var(--color-primary);
+}
+
+@media (max-width: 480px) {
+    .login-container {
+        max-width: 100%;
+    }
+}
