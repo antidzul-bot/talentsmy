@@ -4,7 +4,6 @@ import { useStore } from '../store';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { Order } from '../types';
-import { supabase } from '../lib/supabase';
 import styles from './AdminDashboard.module.css';
 
 export const AdminDashboard: React.FC = () => {
@@ -14,59 +13,6 @@ export const AdminDashboard: React.FC = () => {
     const updateOrder = useStore((state) => state.updateOrder);
     const logout = useStore((state) => state.logout);
     const currentUser = useStore((state) => state.currentUser);
-
-    const handleMigration = async () => {
-        if (!confirm('This will upload all local data to Supabase. Make sure you have created the tables first. Continue?')) return;
-
-        const state = useStore.getState();
-        const { orders, suppliers, packages } = state;
-
-        try {
-            console.log('Starting migration...');
-
-            // Upload Orders
-            for (const order of orders) {
-                const { error } = await supabase.from('orders').upsert({
-                    id: order.id,
-                    tracking_code: order.trackingCode,
-                    data: order,
-                    updated_at: new Date().toISOString()
-                });
-                if (error) {
-                    console.error('Order error:', error);
-                    throw new Error(`Failed to upload order ${order.trackingCode}: ${error.message}`);
-                }
-            }
-            console.log('Orders uploaded');
-
-            // Upload Suppliers
-            for (const supplier of suppliers) {
-                const { error } = await supabase.from('suppliers').upsert({
-                    id: supplier.id,
-                    data: supplier,
-                    updated_at: new Date().toISOString()
-                });
-                if (error) throw new Error(`Failed to upload supplier ${supplier.name}: ${error.message}`);
-            }
-            console.log('Suppliers uploaded');
-
-            // Upload Packages
-            for (const pkg of packages) {
-                const { error } = await supabase.from('packages').upsert({
-                    id: pkg.id,
-                    data: pkg,
-                    updated_at: new Date().toISOString()
-                });
-                if (error) throw new Error(`Failed to upload package ${pkg.name}: ${error.message}`);
-            }
-            console.log('Packages uploaded');
-
-            alert('✅ Migration Successful! All 39 orders and data are now in Supabase.');
-        } catch (err: any) {
-            console.error(err);
-            alert('Migration failed: ' + err.message + '\n\nDid you run the SQL script in Supabase?');
-        }
-    };
 
     // Auto-approval logic for payment verification
     React.useEffect(() => {
@@ -132,9 +78,6 @@ export const AdminDashboard: React.FC = () => {
                             <p className={styles['dashboard-subtitle']}>Welcome back, {currentUser?.name || 'Admin'}</p>
                         </div>
                         <div style={{ display: 'flex', gap: '10px' }}>
-                            <Button variant="secondary" onClick={handleMigration} title="Upload local data to Supabase">
-                                ☁️ Migrate to Cloud
-                            </Button>
                             <Button variant="secondary" onClick={() => logout()}>Logout</Button>
                         </div>
                     </div>
@@ -333,6 +276,6 @@ export const AdminDashboard: React.FC = () => {
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 };

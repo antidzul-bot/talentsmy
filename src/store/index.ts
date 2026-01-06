@@ -310,7 +310,10 @@ export const useStore = create<AppState>((set, get) => ({
         return false;
     },
 
-    logout: () => set({ currentUser: null }),
+    logout: () => {
+        localStorage.removeItem('currentUser');
+        set({ currentUser: null });
+    },
 
     getDashboardStats: () => {
         const orders = get().orders;

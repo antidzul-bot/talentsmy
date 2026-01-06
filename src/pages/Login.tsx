@@ -122,6 +122,8 @@ export const Login: React.FC = () => {
 
                 // Set user in store
                 useStore.setState({ currentUser: user });
+                // Persist session
+                localStorage.setItem('currentUser', JSON.stringify(user));
 
                 setToast({ message: 'Login successful!', type: 'success' });
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useStore } from '../store';
+import { supabase } from '../lib/supabase';
 import { Card, CardHeader, CardTitle, CardBody } from '../components/Card';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
@@ -13,34 +13,65 @@ export const ClientTracking: React.FC = () => {
     const [trackingCode, setTrackingCode] = useState('');
     const [searchedOrder, setSearchedOrder] = useState<Order | null>(null);
     const [notFound, setNotFound] = useState(false);
-    const getOrderByTrackingCode = useStore((state) => state.getOrderByTrackingCode);
+    const [isLoading, setIsLoading] = useState(false);
+
+    // Function to fetch order directly from Supabase
+    const fetchOrder = async (code: string) => {
+        if (!code) return;
+        setIsLoading(true);
+        setNotFound(false);
+        setSearchedOrder(null);
+
+        try {
+            // Direct Supabase query to bypass store/auth state if table is public
+            // Note: This requires 'orders' table to have Public Read Policy
+            const { data, error } = await supabase
+                .from('orders')
+                .select('*')
+                .eq('tracking_code', code.toUpperCase().trim()) // Ensure Exact Case/Trim
+                .maybeSingle(); // Use maybeSingle to avoid 406 on no rows
+
+            if (error) {
+                console.error('Tracking fetch error:', error);
+                setNotFound(true);
+            } else if (data) {
+                // Ensure data structure matches Order type 
+                // (Since we used a JSONB 'data' column previously, check if we need to access result.data)
+                // If the table layout is standard flat now: 'data' is the order.
+                // If it's legacy JSON: 'data.data' might be the order.
+
+                // Let's assume standard object based on previous code.
+                // However, the store used 'd.data'. Let's check that.
+                const orderData = data.data ? data.data : data;
+                // Note: The previous store code used 'd.data as Order'. This implies the actual order fields are inside a JSON column named 'data' or the row itself?
+                // Looking at store: "const { data: ordersData } ... ordersData.map((d: any) => d.data as Order)"
+                // This confirms the table order has a column `data` which holds the JSON.
+
+                setSearchedOrder(orderData as Order);
+                setNotFound(false);
+            } else {
+                setNotFound(true);
+            }
+        } catch (err) {
+            console.error(err);
+            setNotFound(true);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     // Auto-fill from URL parameter
     useEffect(() => {
         const codeFromUrl = searchParams.get('code');
         if (codeFromUrl) {
             setTrackingCode(codeFromUrl.toUpperCase());
-            const order = getOrderByTrackingCode(codeFromUrl.toUpperCase());
-            if (order) {
-                setSearchedOrder(order);
-                setNotFound(false);
-            } else {
-                setSearchedOrder(null);
-                setNotFound(true);
-            }
+            fetchOrder(codeFromUrl);
         }
-    }, [searchParams, getOrderByTrackingCode]);
+    }, [searchParams]);
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        const order = getOrderByTrackingCode(trackingCode.toUpperCase());
-        if (order) {
-            setSearchedOrder(order);
-            setNotFound(false);
-        } else {
-            setSearchedOrder(null);
-            setNotFound(true);
-        }
+        fetchOrder(trackingCode);
     };
 
     const getTimelineItems = (order: Order) => {

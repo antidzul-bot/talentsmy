@@ -25,6 +25,15 @@ const App = () => {
     const initializeStore = useStore((state) => state.initialize);
 
     useEffect(() => {
+        // Restore session
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+            try {
+                useStore.setState({ currentUser: JSON.parse(savedUser) });
+            } catch (e) {
+                console.error('Failed to restore session', e);
+            }
+        }
         initializeStore();
     }, [initializeStore]);
     return (
