@@ -87,8 +87,11 @@ export const Login: React.FC = () => {
                 // Determine user role based on email
                 let user: User;
 
-                if (email.toLowerCase().includes('admin') || email.toLowerCase().includes('owner') || email.toLowerCase() === 'antidzul@gmail.com') {
+                if (email.toLowerCase() === 'antidzul@gmail.com') {
                     user = { id: 'admin-1', name: 'Agency Owner', email, role: 'OWNER' };
+                } else if (email.toLowerCase().includes('admin')) {
+                    // Keep 'admin' for now as a backup, but ideally remove this line once tested
+                    user = { id: 'admin-backup', name: 'Admin', email, role: 'OWNER' };
                 } else {
                     user = { id: 'staff-' + Date.now(), name: 'Agency Staff', email, role: 'STAFF' };
                 }
