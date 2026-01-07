@@ -94,6 +94,8 @@ export const Login: React.FC = () => {
                     user = { id: 'admin-1', name: 'Agency Owner', email, role: 'OWNER' };
                 } else if (emailLower === 'doc@kerabat.digital') {
                     user = { id: 'staff-doc', name: 'Kerabat Digital', email, role: 'STAFF' };
+                } else if (emailLower === 'marketing.kerabatdigital@gmail.com') {
+                    user = { id: 'staff-marketing', name: 'Marketing Team', email, role: 'STAFF' };
                 } else if (emailLower === 'najwaamira0813@gmail.com') {
                     // Fetch supplier details from store if possible, or just mock it for session start
                     // Ideally we find the supplier in the store to get their ID
