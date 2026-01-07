@@ -201,3 +201,35 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Header Layout */
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-lg);
+    flex-wrap: wrap;
+}
+
+.header-left {
+    display: flex;
+    gap: var(--space-lg);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .header-left {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .header-content>button {
+        width: 100%;
+    }
+}

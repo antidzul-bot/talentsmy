@@ -85,8 +85,8 @@ export const PackageSettings: React.FC = () => {
 
             <div className={styles['page-header']}>
                 <div className="container">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+                    <div className={styles['header-content']}>
+                        <div className={styles['header-left']}>
                             <Button variant="secondary" onClick={() => navigate('/admin')}>← Dashboard</Button>
                             <div>
                                 <h1 className={styles['page-title']}>Package Settings</h1>

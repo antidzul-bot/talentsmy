@@ -79,7 +79,19 @@ export const useStore = create<AppState>((set, get) => ({
             const { data: ordersData, error: ordersError } = await supabase.from('orders').select('*');
             if (ordersError) throw ordersError;
             // Handle possibility of data being empty or malformed
-            const orders = ordersData ? ordersData.map((d: any) => d.data as Order) : [];
+            // Migrate old notes format (string) to new format (array)
+            const orders = ordersData ? ordersData.map((d: any) => {
+                const order = d.data as Order;
+                // Fix old notes format - if notes is a string or undefined, convert to empty array
+                if (!Array.isArray(order.notes)) {
+                    order.notes = [];
+                }
+                // Ensure statusHistory exists
+                if (!order.statusHistory) {
+                    order.statusHistory = [];
+                }
+                return order;
+            }) : [];
 
             // Fetch Suppliers
             const { data: suppliersData, error: suppliersError } = await supabase.from('suppliers').select('*');

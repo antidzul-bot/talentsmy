@@ -154,6 +154,37 @@
     color: var(--color-text-primary);
 }
 
+/* Search and Filter Container */
+.search-filter-container {
+    display: flex;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.search-input-wrapper {
+    flex: 1;
+    min-width: 200px;
+}
+
+.filter-select {
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    background: white;
+    cursor: pointer;
+    min-width: 150px;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-focus);
+}
+
 .orders-grid {
     display: grid;
     gap: var(--space-lg);
