@@ -29,6 +29,27 @@ export interface Affiliate {
     videoUrl?: string;
 }
 
+export interface OrderNote {
+    id: string;
+    orderId: string;
+    content: string;
+    createdBy: string; // user email
+    createdByName: string; // user name
+    createdAt: string;
+    updatedAt?: string;
+}
+
+export interface StatusHistoryEntry {
+    id: string;
+    orderId: string;
+    field: string; // What was changed
+    oldValue: string;
+    newValue: string;
+    changedBy: string; // user email
+    changedByName: string; // user name
+    changedAt: string;
+}
+
 export interface OrderProgress {
     // Client Steps
     clientPaid: boolean;
@@ -143,7 +164,8 @@ export interface Order {
     affiliates: Affiliate[];
     contentGuidelines?: string;
     reportUrl?: string;
-    notes?: string;
+    notes?: OrderNote[]; // Changed from string to OrderNote array
+    statusHistory?: StatusHistoryEntry[];
 
     // Payment status for supplier
     supplierPaymentStatus: 'unpaid' | 'pending_verification' | 'verified' | 'disputed';

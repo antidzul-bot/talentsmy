@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import { logActivity } from '../utils/activityLogger';
-import { Order, Supplier, DashboardStats, OrderProgress, CampaignPackage, User, AuthOTP } from '../types';
+import { Order, Supplier, DashboardStats, OrderProgress, CampaignPackage, User, AuthOTP, OrderNote, StatusHistoryEntry } from '../types';
 
 interface AppState {
     // Data
@@ -21,6 +21,10 @@ interface AppState {
     updateSupplierProgress: (id: string, progress: Partial<Order['supplierProgress']>) => Promise<void>;
     deleteOrder: (id: string) => Promise<void>;
     getOrderByTrackingCode: (code: string) => Order | undefined;
+
+    // Actions - Order Notes
+    addOrderNote: (orderId: string, content: string) => Promise<void>;
+    deleteOrderNote: (orderId: string, noteId: string) => Promise<void>;
 
     // Actions - Suppliers
     addSupplier: (supplier: Omit<Supplier, 'id'>) => Promise<void>;
@@ -198,10 +202,43 @@ export const useStore = create<AppState>((set, get) => ({
         const orderIndex = state.orders.findIndex((o) => o.id === id);
         if (orderIndex === -1) return;
 
+        const oldOrder = state.orders[orderIndex];
+        const currentUser = state.currentUser;
+
+        // Track status changes
+        const statusHistory: StatusHistoryEntry[] = [...(oldOrder.statusHistory || [])];
+        const now = new Date().toISOString();
+
+        // Check for important field changes
+        const fieldsToTrack: Array<{ key: keyof Order; label: string }> = [
+            { key: 'status', label: 'Order Status' },
+            { key: 'supplierPaymentStatus', label: 'Supplier Payment Status' },
+            { key: 'supplierId', label: 'Assigned Supplier' },
+        ];
+
+        fieldsToTrack.forEach(({ key, label }) => {
+            const oldValue = oldOrder[key];
+            const newValue = updates[key as keyof typeof updates];
+
+            if (newValue !== undefined && newValue !== oldValue) {
+                statusHistory.push({
+                    id: generateId(),
+                    orderId: id,
+                    field: label,
+                    oldValue: String(oldValue || 'None'),
+                    newValue: String(newValue || 'None'),
+                    changedBy: currentUser?.email || 'System',
+                    changedByName: currentUser?.name || 'System',
+                    changedAt: now
+                });
+            }
+        });
+
         const updatedOrder = {
-            ...state.orders[orderIndex],
+            ...oldOrder,
             ...updates,
-            updatedAt: new Date().toISOString()
+            statusHistory,
+            updatedAt: now
         };
 
         // Optimistic update
@@ -212,7 +249,7 @@ export const useStore = create<AppState>((set, get) => ({
         // DB Update
         await supabase.from('orders').update({
             data: updatedOrder,
-            updated_at: new Date().toISOString()
+            updated_at: now
         }).eq('id', id);
 
         // Log activity
@@ -360,5 +397,78 @@ export const useStore = create<AppState>((set, get) => ({
         return { totalRevenue, totalProfit, activeOrders, completedOrders, pendingPayments };
     },
 
-    getSupplierOrders: (supplierId) => get().orders.filter((o) => o.supplierId === supplierId)
+    getSupplierOrders: (supplierId) => get().orders.filter((o) => o.supplierId === supplierId),
+
+    // Order Notes
+    addOrderNote: async (orderId, content) => {
+        const state = get();
+        const order = state.orders.find((o) => o.id === orderId);
+        if (!order) return;
+
+        const note: OrderNote = {
+            id: generateId(),
+            orderId,
+            content,
+            createdBy: state.currentUser?.email || 'Unknown',
+            createdByName: state.currentUser?.name || 'Unknown',
+            createdAt: new Date().toISOString()
+        };
+
+        const updatedOrder = {
+            ...order,
+            notes: [...(order.notes || []), note],
+            updatedAt: new Date().toISOString()
+        };
+
+        // Optimistic update
+        set((state) => ({
+            orders: state.orders.map((o) => o.id === orderId ? updatedOrder : o)
+        }));
+
+        // DB Update
+        await supabase.from('orders').update({
+            data: updatedOrder,
+            updated_at: new Date().toISOString()
+        }).eq('id', orderId);
+
+        // Log activity
+        await logActivity({
+            action_type: 'NOTE_ADD',
+            action_description: `Added note to order ${order.trackingCode}`,
+            related_entity_type: 'ORDER',
+            related_entity_id: orderId,
+            metadata: { noteContent: content.substring(0, 50) }
+        });
+    },
+
+    deleteOrderNote: async (orderId, noteId) => {
+        const state = get();
+        const order = state.orders.find((o) => o.id === orderId);
+        if (!order) return;
+
+        const updatedOrder = {
+            ...order,
+            notes: order.notes?.filter((n) => n.id !== noteId),
+            updatedAt: new Date().toISOString()
+        };
+
+        // Optimistic update
+        set((state) => ({
+            orders: state.orders.map((o) => o.id === orderId ? updatedOrder : o)
+        }));
+
+        // DB Update
+        await supabase.from('orders').update({
+            data: updatedOrder,
+            updated_at: new Date().toISOString()
+        }).eq('id', orderId);
+
+        // Log activity
+        await logActivity({
+            action_type: 'NOTE_DELETE',
+            action_description: `Deleted note from order ${order.trackingCode}`,
+            related_entity_type: 'ORDER',
+            related_entity_id: orderId
+        });
+    }
 }));

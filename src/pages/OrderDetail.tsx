@@ -5,6 +5,8 @@ import { Card, CardHeader, CardTitle, CardBody } from '../components/Card';
 import { Button } from '../components/Button';
 import { Toast } from '../components/Toast';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { NotesSection } from '../components/NotesSection';
+import { StatusHistory } from '../components/StatusHistory';
 import { supabase } from '../lib/supabase';
 import { Order } from '../types';
 import styles from './OrderDetail.module.css';
@@ -18,6 +20,8 @@ export const OrderDetail: React.FC = () => {
     const updateOrder = useStore((state) => state.updateOrder);
     const updateOrderProgress = useStore((state) => state.updateOrderProgress);
     const deleteOrder = useStore((state) => state.deleteOrder);
+    const addOrderNote = useStore((state) => state.addOrderNote);
+    const deleteOrderNote = useStore((state) => state.deleteOrderNote);
 
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -619,6 +623,13 @@ export const OrderDetail: React.FC = () => {
                                 })}
                             </div>
                         </div>
+
+                        {/* Status History */}
+                        {order.statusHistory && order.statusHistory.length > 0 && (
+                            <div className={styles.section}>
+                                <StatusHistory history={order.statusHistory} />
+                            </div>
+                        )}
                     </div>
 
                     {/* Sidebar */}
@@ -777,18 +788,15 @@ export const OrderDetail: React.FC = () => {
                             </CardBody>
                         </Card>
 
-                        {order.notes && (
-                            <Card style={{ marginTop: 'var(--space-lg)' }}>
-                                <CardHeader>
-                                    <CardTitle>Notes</CardTitle>
-                                </CardHeader>
-                                <CardBody>
-                                    <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>
-                                        {order.notes}
-                                    </p>
-                                </CardBody>
-                            </Card>
-                        )}
+
+                        {/* Notes Section */}
+                        <div style={{ marginTop: 'var(--space-lg)' }}>
+                            <NotesSection
+                                notes={order.notes || []}
+                                onAddNote={(content) => addOrderNote(order.id, content)}
+                                onDeleteNote={(noteId) => deleteOrderNote(order.id, noteId)}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

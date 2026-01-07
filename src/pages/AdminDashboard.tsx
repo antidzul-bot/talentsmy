@@ -20,6 +20,11 @@ export const AdminDashboard: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('all');
     const [supplierFilter, setSupplierFilter] = useState<string>('all');
+    const [sortBy, setSortBy] = useState<'date' | 'price' | 'status'>('date');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+    const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month' | 'custom'>('all');
+    const [customDateStart, setCustomDateStart] = useState('');
+    const [customDateEnd, setCustomDateEnd] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const ordersPerPage = 10;
 
@@ -53,8 +58,58 @@ export const AdminDashboard: React.FC = () => {
             result = result.filter(order => order.supplierId === supplierFilter);
         }
 
+        // Date filter
+        if (dateFilter !== 'all') {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+            if (dateFilter === 'today') {
+                result = result.filter(order => {
+                    const orderDate = new Date(order.createdAt);
+                    return orderDate >= today;
+                });
+            } else if (dateFilter === 'week') {
+                const weekAgo = new Date(today);
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                result = result.filter(order => {
+                    const orderDate = new Date(order.createdAt);
+                    return orderDate >= weekAgo;
+                });
+            } else if (dateFilter === 'month') {
+                const monthAgo = new Date(today);
+                monthAgo.setMonth(monthAgo.getMonth() - 1);
+                result = result.filter(order => {
+                    const orderDate = new Date(order.createdAt);
+                    return orderDate >= monthAgo;
+                });
+            } else if (dateFilter === 'custom' && customDateStart && customDateEnd) {
+                const startDate = new Date(customDateStart);
+                const endDate = new Date(customDateEnd);
+                endDate.setHours(23, 59, 59, 999); // Include full end date
+                result = result.filter(order => {
+                    const orderDate = new Date(order.createdAt);
+                    return orderDate >= startDate && orderDate <= endDate;
+                });
+            }
+        }
+
+        // Sorting
+        result.sort((a, b) => {
+            let comparison = 0;
+
+            if (sortBy === 'date') {
+                comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+            } else if (sortBy === 'price') {
+                comparison = (a.priceClient || 0) - (b.priceClient || 0);
+            } else if (sortBy === 'status') {
+                comparison = a.status.localeCompare(b.status);
+            }
+
+            return sortOrder === 'asc' ? comparison : -comparison;
+        });
+
         return result;
-    }, [orders, searchQuery, statusFilter, supplierFilter]);
+    }, [orders, searchQuery, statusFilter, supplierFilter, dateFilter, customDateStart, customDateEnd, sortBy, sortOrder]);
 
     // Pagination
     const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
@@ -126,12 +181,12 @@ export const AdminDashboard: React.FC = () => {
         <div className={styles.dashboard}>
             <div className={styles['dashboard-header']}>
                 <div className="container">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className={styles['header-content']}>
                         <div>
                             <h1 className={styles['dashboard-title']}>Admin Dashboard</h1>
                             <p className={styles['dashboard-subtitle']}>Welcome back, {currentUser?.name || 'Admin'}</p>
                         </div>
-                        <div style={{ display: 'flex', gap: '10px' }}>
+                        <div className={styles['header-actions']}>
                             {currentUser?.role === 'OWNER' && (
                                 <Button variant="secondary" onClick={() => navigate('/admin/activity-logs')}>
                                     📊 Activity Logs
@@ -230,7 +285,7 @@ export const AdminDashboard: React.FC = () => {
                 {/* Orders Section */}
                 <div className={styles['section-header']}>
                     <h2 className={styles['section-title']}>Orders ({filteredOrders.length})</h2>
-                    <div style={{ display: 'flex', gap: '10px' }}>
+                    <div className={styles['section-actions']}>
                         <Button variant="secondary" onClick={() => navigate('/admin/suppliers')}>
                             👥 Suppliers
                         </Button>
@@ -244,14 +299,8 @@ export const AdminDashboard: React.FC = () => {
                 </div>
 
                 {/* Search and Filters */}
-                <div style={{
-                    display: 'flex',
-                    gap: '12px',
-                    marginBottom: '20px',
-                    flexWrap: 'wrap',
-                    alignItems: 'center'
-                }}>
-                    <div style={{ flex: '1 1 300px' }}>
+                <div className={styles['search-filter-container']}>
+                    <div className={styles['search-input-wrapper']}>
                         <Input
                             type="text"
                             placeholder="Search by tracking code, client, or product..."
@@ -262,14 +311,7 @@ export const AdminDashboard: React.FC = () => {
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        style={{
-                            padding: '10px 12px',
-                            borderRadius: '8px',
-                            border: '1px solid var(--color-border)',
-                            background: 'var(--color-bg-secondary)',
-                            color: 'var(--color-text-primary)',
-                            cursor: 'pointer'
-                        }}
+                        className={styles['filter-select']}
                     >
                         <option value="all">All Status</option>
                         <option value="pending_payment">Pending Payment</option>
@@ -279,14 +321,7 @@ export const AdminDashboard: React.FC = () => {
                     <select
                         value={supplierFilter}
                         onChange={(e) => setSupplierFilter(e.target.value)}
-                        style={{
-                            padding: '10px 12px',
-                            borderRadius: '8px',
-                            border: '1px solid var(--color-border)',
-                            background: 'var(--color-bg-secondary)',
-                            color: 'var(--color-text-primary)',
-                            cursor: 'pointer'
-                        }}
+                        className={styles['filter-select']}
                     >
                         <option value="all">All Suppliers</option>
                         {suppliers.map(supplier => (
@@ -295,7 +330,53 @@ export const AdminDashboard: React.FC = () => {
                             </option>
                         ))}
                     </select>
+                    <select
+                        value={dateFilter}
+                        onChange={(e) => setDateFilter(e.target.value as any)}
+                        className={styles['filter-select']}
+                    >
+                        <option value="all">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">Last 7 Days</option>
+                        <option value="month">Last 30 Days</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                    <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value as any)}
+                        className={styles['filter-select']}
+                    >
+                        <option value="date">Sort by Date</option>
+                        <option value="price">Sort by Price</option>
+                        <option value="status">Sort by Status</option>
+                    </select>
+                    <button
+                        onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                        className={styles['sort-order-btn']}
+                        title={sortOrder === 'asc' ? 'Ascending' : 'Descending'}
+                    >
+                        {sortOrder === 'asc' ? '↑' : '↓'}
+                    </button>
                 </div>
+
+                {/* Custom Date Range */}
+                {dateFilter === 'custom' && (
+                    <div className={styles['date-range-container']}>
+                        <input
+                            type="date"
+                            value={customDateStart}
+                            onChange={(e) => setCustomDateStart(e.target.value)}
+                            className={styles['date-input']}
+                        />
+                        <span style={{ color: 'var(--color-text-tertiary)' }}>to</span>
+                        <input
+                            type="date"
+                            value={customDateEnd}
+                            onChange={(e) => setCustomDateEnd(e.target.value)}
+                            className={styles['date-input']}
+                        />
+                    </div>
+                )}
 
                 <div className={styles['orders-grid']}>
                     {filteredOrders.length === 0 ? (

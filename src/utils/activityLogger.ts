@@ -15,7 +15,9 @@ export type ActivityAction =
     | 'PACKAGE_UPDATE'
     | 'PACKAGE_DELETE'
     | 'FILE_UPLOAD'
-    | 'PAYMENT_UPDATE';
+    | 'PAYMENT_UPDATE'
+    | 'NOTE_ADD'
+    | 'NOTE_DELETE';
 
 export interface ActivityLogData {
     action_type: ActivityAction;

@@ -155,3 +155,49 @@
     gap: var(--space-md);
     margin-top: var(--space-xl);
 }
+
+/* Responsive Media Queries */
+@media (max-width: 768px) {
+    .packages-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pkg-pricing {
+        grid-template-columns: 1fr;
+        gap: var(--space-md);
+    }
+
+    .pkg-actions {
+        flex-direction: column;
+    }
+
+    .pkg-actions button {
+        width: 100%;
+    }
+
+    .modal-actions {
+        flex-direction: column-reverse;
+    }
+
+    .modal-actions button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 640px) {
+    .page-header {
+        padding: var(--space-lg) 0;
+    }
+
+    .page-title {
+        font-size: var(--font-size-xl);
+    }
+
+    .package-card-header {
+        padding: var(--space-md);
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
